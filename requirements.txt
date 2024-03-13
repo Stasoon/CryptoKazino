@@ -1,0 +1,7 @@
+aiogram==3.3.0
+loguru==0.7.2
+peewee==3.17.0
+python-dotenv==1.0.1
+aiocryptopay==0.3.5
+Pyrogram==2.0.106
+TgCrypto==1.2.5

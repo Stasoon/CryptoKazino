@@ -144,7 +144,7 @@ class DiceGuessNumber(Game):
 
     @staticmethod
     def get_options() -> Iterable[str]:
-        return '1', '2', '3', '4', '5', '6'
+        return [str(i) for i in range(1, 6+1)]
 
     async def execute(self, root_message_id: int):
         dice_msg = await self.bot.send_dice(
@@ -154,7 +154,7 @@ class DiceGuessNumber(Game):
         dice_animation_seconds = 3
         await asyncio.sleep(dice_animation_seconds)
 
-        if self.payment.comment == dice_msg.dice.value:
+        if self.payment.comment.strip() == dice_msg.dice.value:
             coefficient = Decimal('3')
             win_amount = coefficient * self.payment.amount_usd
             await self.accrue_winning(amount_usd=float(win_amount), root_message_id=root_message_id)

@@ -9,8 +9,10 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery, FSInputFile
 
 from src.database import users
+from src.database.payments import get_payments_usd_sum
 from src.database.users import get_all_users
 from src.keyboards.admin import AdminKeyboards, StatisticCallback
+from src.utils import crypto_bot
 
 
 # region Utils
@@ -91,8 +93,17 @@ class Messages:
 
     @staticmethod
     def get_count_per_hours(time_word: str, hours: int):
-        return f'За {time_word} в бота пришли: \n' \
-               f'<b>{users.get_users_registered_within_hours_count(hours)} юзера(ов)</b>'
+        c = crypto_bot.get_checks_summ(hours_back=hours)
+        t = crypto_bot.get_transfers_summ(hours_back=hours)
+        p = get_payments_usd_sum(hours_back=hours)
+        return (
+            f'За {time_word} в бота пришли: \n'
+            f'<b>{users.get_users_registered_within_hours_count(hours)} юзера(ов)</b> \n\n'
+            f'Чеки: {c} USDT \n'
+            f'Переводы: {t} USDT \n'
+            f'Ставки: {p} $ \n'
+            f'Доход: {p - c - t} $'
+        )
 
 
 class StatsGettingStates(StatesGroup):

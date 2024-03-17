@@ -72,6 +72,22 @@ class Check(_BaseModel):
     timestamp = DateTimeField(default=datetime.now)
 
 
+# class Transfer(_BaseModel):
+#     class Meta:
+#         db_table = 'transfers'
+#
+#     check_id = BigIntegerField()
+#     amount = DecimalField()
+#     currency = CharField(default='USDT')
+#
+#     user_id = BigIntegerField(null=True)
+#     user_fullname = CharField(null=True)
+#
+#     activation_url = CharField()
+#     type = CharField()
+#     timestamp = DateTimeField(default=datetime.now)
+
+
 class Admin(_BaseModel):
     """ Администратор бота """
     class Meta:

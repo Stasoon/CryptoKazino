@@ -1,3 +1,5 @@
+import json
+import requests
 from decimal import Decimal
 from uuid import uuid4
 from datetime import datetime, timedelta, timezone
@@ -100,3 +102,40 @@ async def delete_old_checks() -> list[int]:
     logger.info(f'Удалены чеки: {deleted_checks}')
     await crypto.close()
     return deleted_checks
+
+
+headers = {
+    "Host": "pay.crypt.bot",
+    "Crypto-Pay-API-Token": CRYPTO_BOT_TOKEN
+}
+
+
+def get_checks_summ(hours_back: int) -> float:
+    resp = requests.get(f"https://pay.crypt.bot/api/getChecks", headers=headers)
+    checks = json.loads(resp.content).get('result').get('items')
+
+    total_amount = 0
+
+    for check in checks:
+        time = datetime.strptime(check.get('created_at'), '%Y-%m-%dT%H:%M:%S.%fZ')
+        if check.get('status') == 'activated' and datetime.now() - time < timedelta(hours=hours_back):
+            check_amount = float(check.get('amount'))
+            total_amount += check_amount
+
+    return total_amount
+
+
+def get_transfers_summ(hours_back: int) -> float:
+    resp = requests.get(f"https://pay.crypt.bot/api/getTransfers", headers=headers)
+    transfers = json.loads(resp.content).get('result').get('items')
+
+    total_amount = 0
+
+    for t in transfers:
+        time = datetime.strptime(t.get('completed_at'), '%Y-%m-%dT%H:%M:%S.%fZ')
+        if t.get('status') == 'completed' and datetime.now() - time < timedelta(hours=hours_back):
+            total_amount += float(t.get('amount'))
+
+    return total_amount
+
+

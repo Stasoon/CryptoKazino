@@ -3,6 +3,28 @@ from aiogram.filters import Command, CommandObject
 from aiogram.types import Message
 
 from src.utils.crypto_bot import create_usdt_invoice, delete_old_checks
+from config import IS_ACTION_EVENT_ACTIVE
+
+
+async def handle_help_cmd(message: Message):
+    help_text = (
+        '<code>/admin</code> — Меню администратора \n\n'
+        
+        '<code>/startevent</code> — Начать акцию с x1.1 ставками \n'
+        '<code>/addbalance сумма_usdt</code> — Пополнить баланс приложения \n'
+        '<code>/deloldchecks</code> — Удалить неиспользованные чеки, которым больше 2 дней \n'
+    )
+    await message.answer(text=help_text)
+
+
+async def handle_toggle_action_event(message: Message):
+    global IS_ACTION_EVENT_ACTIVE
+    IS_ACTION_EVENT_ACTIVE = not IS_ACTION_EVENT_ACTIVE
+
+    if IS_ACTION_EVENT_ACTIVE:
+        await message.answer('🎉 Акция активирована!')
+    else:
+        await message.answer('🛑 Акция остановлена')
 
 
 async def handle_top_up_crypto_bot_balance(message: Message, command: CommandObject):
@@ -27,6 +49,10 @@ async def handle_delete_old_checks(message: Message):
 
 
 def register_admin_commands_handlers(router: Router):
+    router.message.register(handle_help_cmd, Command('help'))
+
+    router.message.register(handle_toggle_action_event, Command('startevent'))
+
     router.message.register(handle_top_up_crypto_bot_balance, Command('addbalance'))
 
     router.message.register(handle_delete_old_checks, Command('deloldchecks'))

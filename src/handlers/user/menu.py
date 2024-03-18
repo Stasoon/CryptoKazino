@@ -100,4 +100,4 @@ def register_menu_handlers(router: Router):
     router.callback_query.register(handle_withdraw_referral_balance_callback, F.data == 'withdraw_ref_balance')
 
     ##########
-    router.message.register(f)
+    # router.message.register(f)

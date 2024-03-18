@@ -1,6 +1,7 @@
 import html
 
-from config import RULES_MESSAGE_URL, MIN_WITHDRAW_REFERRAL_BALANCE_USD, REFERRAL_BONUS_PERCENT
+from config import RULES_MESSAGE_URL, MIN_WITHDRAW_REFERRAL_BALANCE_USD, REFERRAL_BONUS_PERCENT, \
+    IS_ACTION_EVENT_ACTIVE, ACTION_BET_MULTIPLIER
 from src.database.models import InvoicePayment, Check
 
 
@@ -13,12 +14,27 @@ class UserMessages:
         )
 
     @staticmethod
-    def get_bet_accepted(payment: InvoicePayment) -> str:
+    def __get_action_text() -> str:
+        return f"<b>[🎉] Акция: каждая ставка умножается на {ACTION_BET_MULTIPLIER}x! " \
+               f"Успейте воспользоваться выгодой!</b>"
+
+    @classmethod
+    def get_bet_accepted(cls, payment: InvoicePayment) -> str:
+        info_channel_url = 'https://t.me/+pSRwV4DNZ6IyYzFi'
+
+        if IS_ACTION_EVENT_ACTIVE:
+            action_text = f"{cls.__get_action_text()} \n\n"
+        else:
+            action_text = ''
+
         return (
             f'<blockquote><b>[✅ Ваша ставка принята]</b></blockquote> \n'
             f'🔑 Игрок: <b>{html.escape(payment.username)}</b> \n'
             f'💵 Сумма ставки: <b>{payment.amount_usd}$</b> \n'
-            f'💬 Комментарий: <b>{payment.comment}</b>'
+            f'💬 Комментарий: <b>{payment.comment}</b> \n\n'
+            f'{action_text}'
+            f'<b><a href="{RULES_MESSAGE_URL}">Как сделать ставку</a> | '
+            f'<a href="{info_channel_url}">Новостной канал</a></b>'
         )
 
     @staticmethod

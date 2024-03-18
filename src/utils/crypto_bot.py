@@ -9,7 +9,7 @@ from aiocryptopay.const import Assets
 from aiocryptopay.models.check import Check
 from aiocryptopay.models.invoice import Invoice
 
-from config import CRYPTO_BOT_TOKEN
+from config import CRYPTO_BOT_TOKEN, OWNER_IDS
 from src.utils import logger
 
 
@@ -110,30 +110,38 @@ headers = {
 }
 
 
-def get_checks_summ(hours_back: int) -> float:
+def get_checks_summ(hours_back: int = None) -> float:
     resp = requests.get(f"https://pay.crypt.bot/api/getChecks", headers=headers)
     checks = json.loads(resp.content).get('result').get('items')
 
     total_amount = 0
 
     for check in checks:
-        time = datetime.strptime(check.get('created_at'), '%Y-%m-%dT%H:%M:%S.%fZ')
-        if check.get('status') == 'activated' and datetime.now() - time < timedelta(hours=hours_back):
+        time_filter = True
+        if hours_back:
+            time = datetime.strptime(check.get('created_at'), '%Y-%m-%dT%H:%M:%S.%fZ')
+            time_filter = datetime.now() - time < timedelta(hours=hours_back)
+
+        if check.get('status') == 'activated' and time_filter:
             check_amount = float(check.get('amount'))
             total_amount += check_amount
 
     return total_amount
 
 
-def get_transfers_summ(hours_back: int) -> float:
+def get_transfers_summ(hours_back: int = None) -> float:
     resp = requests.get(f"https://pay.crypt.bot/api/getTransfers", headers=headers)
     transfers = json.loads(resp.content).get('result').get('items')
 
     total_amount = 0
 
     for t in transfers:
-        time = datetime.strptime(t.get('completed_at'), '%Y-%m-%dT%H:%M:%S.%fZ')
-        if t.get('status') == 'completed' and datetime.now() - time < timedelta(hours=hours_back):
+        time_filter = True
+        if hours_back:
+            time = datetime.strptime(t.get('completed_at'), '%Y-%m-%dT%H:%M:%S.%fZ')
+            time_filter = datetime.now() - time < timedelta(hours=hours_back)
+
+        if t.get('user_id') not in OWNER_IDS and t.get('status') == 'completed' and time_filter:
             total_amount += float(t.get('amount'))
 
     return total_amount

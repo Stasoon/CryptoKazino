@@ -6,7 +6,7 @@ from typing import Iterable
 from aiogram import Bot
 from aiogram.enums import DiceEmoji
 
-from config import GAME_CHANNEL_ID, REFERRAL_BONUS_PERCENT
+from config import GAME_CHANNEL_ID, REFERRAL_BONUS_PERCENT, IS_ACTION_EVENT_ACTIVE, ACTION_BET_MULTIPLIER
 from src.database import checks
 from src.database.models import InvoicePayment
 from src.database.users import get_user_or_none
@@ -66,10 +66,13 @@ class Game(ABC):
         )
 
     async def accrue_winning(self, amount_usd: float, root_message_id: int):
+        if IS_ACTION_EVENT_ACTIVE:
+            amount_usd = float(Decimal(str(amount_usd)) * ACTION_BET_MULTIPLIER)
+
         try:
             await make_transfer(win_amount_usd=amount_usd, user_id=self.payment.user_id)
         except Exception as e:
-            logger.error(f"{e}, {self.payment.__dict__}")
+            logger.error(f"{e}, {dict(self.payment)}")
             await self.__send_check(amount_usd, root_message_id)
 
             if 'NOT_ENOUGH_COINS' in str(e):

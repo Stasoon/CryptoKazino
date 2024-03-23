@@ -76,11 +76,13 @@ async def handle_withdraw_referral_balance_callback(callback: CallbackQuery):
 
 
 ######
-async def f(msg):
+async def f(msg: Message):
     if msg.dice:
         print(msg.dice.value)
     if msg.text:
         print(msg.html_text)
+        print()
+        print(msg.text)
 
 
 def register_menu_handlers(router: Router):
@@ -100,4 +102,4 @@ def register_menu_handlers(router: Router):
     router.callback_query.register(handle_withdraw_referral_balance_callback, F.data == 'withdraw_ref_balance')
 
     ##########
-    # router.message.register(f)
+    router.message.register(f)

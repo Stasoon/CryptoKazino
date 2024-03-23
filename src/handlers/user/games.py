@@ -72,7 +72,7 @@ class Game(ABC):
         try:
             await make_transfer(win_amount_usd=amount_usd, user_id=self.payment.user_id)
         except Exception as e:
-            logger.error(f"{e}, {dict(self.payment)}")
+            logger.error(f"{e}, {self.payment.__dict__}")
             await self.__send_check(amount_usd, root_message_id)
 
             if 'NOT_ENOUGH_COINS' in str(e):
@@ -157,7 +157,7 @@ class DiceGuessNumber(Game):
         dice_animation_seconds = 3
         await asyncio.sleep(dice_animation_seconds)
 
-        if self.payment.comment.strip() == dice_msg.dice.value:
+        if self.payment.comment.strip() == str(dice_msg.dice.value):
             coefficient = Decimal('3')
             win_amount = coefficient * self.payment.amount_usd
             await self.accrue_winning(amount_usd=float(win_amount), root_message_id=root_message_id)
@@ -174,12 +174,12 @@ class DiceEvenUneven(Game):
         )
         dice_animation_seconds = 3
         await asyncio.sleep(dice_animation_seconds)
-        comment = self.payment.comment.lower()
+        comment = self.payment.comment.lower().replace('кости', '').replace('кубик', '').replace('куб', '').replace('ё', 'е').strip()
 
         if (
-                (comment in ['чет', 'чёт', 'куб нечет', 'куб нечёт'] and dice_msg.dice.value % 2 == 0)
+                (comment == 'чет' and dice_msg.dice.value % 2 == 0)
                 or
-                (comment in ['нечет', 'нечёт', 'куб нечет', 'куб нечёт'] and dice_msg.dice.value % 2 != 0)
+                (comment == 'нечет' and dice_msg.dice.value % 2 != 0)
         ):
             coefficient = Decimal('1.8')
 

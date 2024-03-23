@@ -23,3 +23,6 @@ RULES_MESSAGE_URL: Final[str] = os.getenv('RULES_MESSAGE_URL')
 CRYPTO_BOT_TOKEN: Final[str] = os.getenv('CRYPTO_BOT_TOKEN')
 INVOICES_CHAT_ID: Final[int] = int(os.getenv('INVOICES_CHAT_ID'))
 INVOICE_URL: Final[str] = os.getenv('INVOICE_URL')
+
+IS_ACTION_EVENT_ACTIVE: bool = False
+ACTION_BET_MULTIPLIER = Decimal('1.1')

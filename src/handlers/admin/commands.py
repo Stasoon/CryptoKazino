@@ -10,7 +10,7 @@ async def handle_help_cmd(message: Message):
     help_text = (
         '<code>/admin</code> — Меню администратора \n\n'
         
-        '<code>/startevent</code> — Начать акцию с x1.1 ставками \n'
+        '<code>/event</code> — Начать акцию с x1.1 ставками \n'
         '<code>/addbalance сумма_usdt</code> — Пополнить баланс приложения \n'
         '<code>/deloldchecks</code> — Удалить неиспользованные чеки, которым больше 2 дней \n'
     )
@@ -51,7 +51,7 @@ async def handle_delete_old_checks(message: Message):
 def register_admin_commands_handlers(router: Router):
     router.message.register(handle_help_cmd, Command('help'))
 
-    router.message.register(handle_toggle_action_event, Command('startevent'))
+    router.message.register(handle_toggle_action_event, Command('event'))
 
     router.message.register(handle_top_up_crypto_bot_balance, Command('addbalance'))
 

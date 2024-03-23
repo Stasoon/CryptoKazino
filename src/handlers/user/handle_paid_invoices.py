@@ -20,28 +20,20 @@ from src.utils import logger
 
 
 async def handle_paid_invoice_message(client: Client, message: Message):
-    if 'tg://user?id=' in message.text.html:
-        pattern = r'<a href="tg://user\?id=(\d+)"><b>(.+)</b></a>.*?([\d\.]+)\s(\w+)\s\(\$([\d\.]+)\)'
-        with_id = True
+    if message.text.html.startswith('<a href="tg://user?id='):
+        user_id_match = re.search(r'<a href="tg://user\?id=(\d+)">', message.text.html)
+        user_id = int(user_id_match.group(1))
     else:
-        pattern = r'<b>(.+)</b>.*?([\d\.]+)\s(\w+)\s\(\$([\d\.]+)\)'
-        with_id = False
+        user_id = None
 
-    matches = re.search(pattern, message.text.html)
+    pattern = r'(.+) отправил\(а\) (\d+\.\d+|\d+) (\w+) \(\$(\d+\.\d+|\d+)\)'
+    matches = re.search(pattern, message.text)
 
     if matches:
-        if with_id:
-            user_id = int(matches.group(1))
-            username = matches.group(2)
-            start_group = 2
-        else:
-            user_id = None
-            username = matches.group(1)
-            start_group = 1
-
-        amount = Decimal(matches.group(start_group + 1))
-        currency = matches.group(start_group + 2)
-        amount_usd = Decimal(matches.group(start_group + 3))
+        username = matches.group(1)
+        amount = Decimal(matches.group(2))
+        currency = matches.group(3)
+        amount_usd = Decimal(matches.group(4))
         comment = message.text.split('\n')[-1].replace('💬', '', 1).strip()
 
         payment = InvoicePayment.create(
@@ -112,4 +104,3 @@ async def register_payments_handlers(client: Client):
             (filters.user(users=crypto_bot_id) | filters.user(users=1136918511)) & filters.chat(chats=INVOICES_CHAT_ID)
         )
     )
-

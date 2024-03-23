@@ -93,16 +93,15 @@ class Messages:
 
     @staticmethod
     def get_count_per_hours(time_word: str, hours: int):
-        c = crypto_bot.get_checks_summ(hours_back=hours)
-        t = crypto_bot.get_transfers_summ(hours_back=hours)
-        p = get_payments_usd_sum(hours_back=hours)
+        checks_summ = crypto_bot.get_checks_summ(hours_back=hours)
+        transfers_summ = crypto_bot.get_transfers_summ(hours_back=hours)
+        bets_summ = get_payments_usd_sum(hours_back=hours)
         return (
             f'За {time_word} в бота пришли: \n'
             f'<b>{users.get_users_registered_within_hours_count(hours)} юзера(ов)</b> \n\n'
-            f'Чеки: {c} USDT \n'
-            f'Переводы: {t} USDT \n'
-            f'Ставки: {p} $ \n'
-            f'Доход: {p - c - t} $'
+            f'Всего поставлено: {bets_summ:.4f} $ \n'
+            f'Казино выплатило: {checks_summ + transfers_summ:.4f} USDT \n'
+            f'Казино заработало: {bets_summ - checks_summ - transfers_summ:.4f} $'
         )
 
 
